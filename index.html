@@ -44,6 +44,7 @@
         function displayResults(data) {
             const resultsContainer = document.getElementById('searchResults');
             resultsContainer.innerHTML = '';
+            resultsContainer.appendChild(document.createElement('br'));
 
             if (data.items) {
                 data.items.forEach(item => {
@@ -51,7 +52,7 @@
                     link.href = item.link;
                     link.textContent = item.title;
                     resultsContainer.appendChild(link);
-                    resultsContainer.appendChild(document.createElement('br');
+                    resultsContainer.appendChild(document.createElement('br'));
                     resultsContainer.appendChild(document.createElement('br'));
                 });
             } else {
