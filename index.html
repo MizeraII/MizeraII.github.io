@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Search</title>
+</head>
+<body>
+
+    <h1>Vyhledávání na mé webové stránce</h1>
+
+    <form id="searchForm" onsubmit="return searchGoogle()">
+        <label for="searchQuery">Zadejte hledaný výraz:</label>
+        <input type="text" id="searchQuery" name="searchQuery" required>
+        <input type="submit" value="Vyhledat">
+    </form>
+
+    <div id="searchResults"></div>
+    
+    <button onclick="downloadCSV()" id="downloadButton" style="display: none;">Uložit data do CSV</button>
+
+    <script>
+        let searchData;  // Globální proměnná pro uchování dat z vyhledávání
+
+        function searchGoogle() {
+            const query = document.getElementById('searchQuery').value;
+            const apiKey = 'AIzaSyD5HLnzsWZPURluMlwlRlgfoknJRKZWN-s';
+            const cx = '20baaf4e0814b488a';
+            const apiUrl = `https://www.googleapis.com/customsearch/v1?q=${query}&key=${apiKey}&cx=${cx}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    searchData = data;
+                    displayResults(data);
+                    document.getElementById('downloadButton').style.display = 'inline';  // Zobrazit tlačítko pro stahování
+                })
+                .catch(error => console.error('Error:', error));
+
+            // Zabránění odeslání formuláře
+            return false;
+        }
+
+        function displayResults(data) {
+            const resultsContainer = document.getElementById('searchResults');
+            resultsContainer.innerHTML = '';
+
+            if (data.items) {
+                data.items.forEach(item => {
+                    const link = document.createElement('a');
+                    link.href = item.link;
+                    link.textContent = item.title;
+                    resultsContainer.appendChild(link);
+                    resultsContainer.appendChild(document.createElement('br'));
+                });
+            } else {
+                resultsContainer.textContent = 'No results found.';
+            }
+        }
+
+        function downloadCSV() {
+            if (!searchData) {
+                alert('Nejprve proveďte vyhledávání.');
+                return;
+            }
+
+            const csvContent = "Title,Link\n" +
+                searchData.items.map(item => `"${item.title}","${item.link}"`).join("\n");
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'search_results.csv';
+            link.click();
+        }
+    </script>
+
+</body>
+</html>
+
